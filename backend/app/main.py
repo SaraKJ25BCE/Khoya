@@ -12,6 +12,7 @@ Endpoints:
                                 `python -m app.replay` prints to console)
 """
 
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -24,11 +25,17 @@ from .replay import run_replay
 
 app = FastAPI(title="Khoya", version="0.1.0-hour12")
 
-# Wide open for local prototype use (Vite dev server on a different port).
-# Tighten before this goes anywhere near a real deployment.
+# Configure CORS origins from environment variable ALLOWED_ORIGINS (comma-separated), defaulting to '*'
+raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
+if raw_origins == "*":
+    origins = ["*"]
+else:
+    origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

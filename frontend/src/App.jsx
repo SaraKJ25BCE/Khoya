@@ -18,7 +18,9 @@ export default function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("/api/replay/straddle")
+    const apiBase = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+    const endpoint = apiBase ? `${apiBase}/replay/straddle` : "/api/replay/straddle";
+    fetch(endpoint)
       .then((r) => {
         if (!r.ok) throw new Error(`Backend returned ${r.status}`);
         return r.json();

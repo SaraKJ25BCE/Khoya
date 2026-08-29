@@ -1,0 +1,39 @@
+# Render Blueprint Specification (render.yaml)
+# Deploy Khoya Backend & Frontend to Render with 1-click
+# Reference: https://render.com/docs/yaml-spec
+
+services:
+  # ---------------------------------------------------------------------------
+  # FastAPI Backend Web Service
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: khoya-backend
+    runtime: python
+    region: singapore # or oregon, frankfurt, etc.
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ENVIRONMENT
+        value: production
+      - key: ALLOWED_ORIGINS
+        value: https://khoya-frontend.onrender.com
+
+  # ---------------------------------------------------------------------------
+  # Vite React Frontend Static Site
+  # ---------------------------------------------------------------------------
+  - type: static
+    name: khoya-frontend
+    region: singapore
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://khoya-backend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
