@@ -1,19 +1,21 @@
 """
-FR1 (Hour 0-1): FastAPI service scaffolding. Kept intentionally small —
-no database, no auth, no WebSocket gateway yet (those are FR7, explicitly
-out of scope before Hour 12 per the requirements' non-functional section).
+FR1 (Hour 0-1): FastAPI service scaffolding.
+Zerodha (Kite Connect) integration endpoints included for live broker ingestion.
 
 Endpoints:
   GET  /health              - liveness check
-  POST /price                - Black-Scholes price + Greeks for one option
-  POST /iv                   - solve IV from an observed price
-  GET  /replay/straddle      - run the FR5 replay and return the full
-                                attribution breakdown as JSON (same numbers
-                                `python -m app.replay` prints to console)
+  POST /price               - Black-Scholes price + Greeks for one option
+  POST /iv                  - solve IV from an observed price
+  GET  /replay/straddle     - run the FR5 replay and return attribution breakdown
+  GET  /zerodha/status      - check Zerodha configuration status
+  GET  /zerodha/login-url   - generate Zerodha OAuth login URL
+  POST /zerodha/session     - exchange request_token for access_token
+  GET  /zerodha/positions   - fetch live open positions from Zerodha
 """
 
 import os
 from pathlib import Path
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,6 +24,7 @@ from pydantic import BaseModel, Field
 from .iv_solver import solve_iv
 from .pricing import bs_greeks, bs_price
 from .replay import run_replay
+from .zerodha import ZerodhaClient
 
 app = FastAPI(title="Khoya", version="0.1.0-hour12")
 
@@ -59,6 +62,10 @@ class IVRequest(BaseModel):
     option_type: str = Field(..., pattern="^(call|put)$")
 
 
+class ZerodhaSessionRequest(BaseModel):
+    request_token: str = Field(..., min_length=1)
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -86,3 +93,49 @@ def iv(req: IVRequest):
 @app.get("/replay/straddle")
 def replay_straddle():
     return run_replay()
+
+
+# -----------------------------------------------------------------------------
+# Zerodha (Kite Connect) API Endpoints
+# -----------------------------------------------------------------------------
+
+@app.get("/zerodha/status")
+def zerodha_status():
+    client = ZerodhaClient()
+    return {
+        "configured": client.is_configured(),
+        "authenticated": client.is_authenticated(),
+        "has_api_key": bool(client.api_key),
+        "has_api_secret": bool(client.api_secret),
+        "has_access_token": bool(client.access_token),
+    }
+
+
+@app.get("/zerodha/login-url")
+def zerodha_login_url():
+    client = ZerodhaClient()
+    try:
+        url = client.get_login_url()
+        return {"login_url": url}
+    except (ValueError, RuntimeError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/zerodha/session")
+def zerodha_session(req: ZerodhaSessionRequest):
+    client = ZerodhaClient()
+    try:
+        result = client.generate_session(req.request_token)
+        return {"status": "success", **result}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/zerodha/positions")
+def zerodha_positions():
+    client = ZerodhaClient()
+    try:
+        positions = client.fetch_positions()
+        return positions
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

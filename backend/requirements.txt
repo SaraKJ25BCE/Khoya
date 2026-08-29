@@ -5,6 +5,7 @@ pydantic==2.9.2
 numpy==2.1.1
 scipy==1.14.1
 pytest==8.3.3
+kiteconnect>=5.0.0
 
 # Hour 12-24 (FR7-FR11) — uncomment when you start on the post-Review-1 scope
 # asyncpg==0.29.0        # Postgres driver for the schema in db/schema.sql
