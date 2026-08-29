@@ -1,5 +1,12 @@
+# Hour 0-12 core (no DB / Redis / auth yet — see Section 5 constraints)
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
-numpy==2.4.4
-scipy==1.17.1
+pydantic==2.9.2
+numpy==2.1.1
+scipy==1.14.1
 pytest==8.3.3
+
+# Hour 12-24 (FR7-FR11) — uncomment when you start on the post-Review-1 scope
+# asyncpg==0.29.0        # Postgres driver for the schema in db/schema.sql
+# redis==5.0.8           # pub/sub for live Greeks/IV caching
+# websockets==13.0       # WS gateway (FastAPI has this built in via uvicorn[standard])

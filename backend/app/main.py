@@ -1,18 +1,31 @@
 """
-FR1 — service scaffold. Just enough to prove the app boots and to serve
-the FR5 replay output to the frontend. No DB, no auth, no websockets —
-those are explicitly out of scope until after Review 1.
+FR1 (Hour 0-1): FastAPI service scaffolding. Kept intentionally small —
+no database, no auth, no WebSocket gateway yet (those are FR7, explicitly
+out of scope before Hour 12 per the requirements' non-functional section).
+
+Endpoints:
+  GET  /health              - liveness check
+  POST /price                - Black-Scholes price + Greeks for one option
+  POST /iv                   - solve IV from an observed price
+  GET  /replay/straddle      - run the FR5 replay and return the full
+                                attribution breakdown as JSON (same numbers
+                                `python -m app.replay` prints to console)
 """
 
-from fastapi import FastAPI
+from pathlib import Path
+
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
-from app.replay.straddle_replay import run_replay
+from .iv_solver import solve_iv
+from .pricing import bs_greeks, bs_price
+from .replay import run_replay
 
-app = FastAPI(title="P&L Attribution — Review 1 build")
+app = FastAPI(title="Khoya", version="0.1.0-hour12")
 
-# Wide open for local dev against the Vite dev server. Tighten before
-# this ever sees a real deployment.
+# Wide open for local prototype use (Vite dev server on a different port).
+# Tighten before this goes anywhere near a real deployment.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,12 +34,48 @@ app.add_middleware(
 )
 
 
+class PriceRequest(BaseModel):
+    spot: float = Field(..., gt=0)
+    strike: float = Field(..., gt=0)
+    days_to_expiry: float = Field(..., gt=0)
+    risk_free_rate: float = 0.06
+    iv_pct: float = Field(..., gt=0, description="IV in percent, e.g. 15.0")
+    option_type: str = Field(..., pattern="^(call|put)$")
+
+
+class IVRequest(BaseModel):
+    observed_price: float = Field(..., gt=0)
+    spot: float = Field(..., gt=0)
+    strike: float = Field(..., gt=0)
+    days_to_expiry: float = Field(..., gt=0)
+    risk_free_rate: float = 0.06
+    option_type: str = Field(..., pattern="^(call|put)$")
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
 
-@app.get("/api/replay/straddle")
+@app.post("/price")
+def price(req: PriceRequest):
+    T = req.days_to_expiry / 365.0
+    iv = req.iv_pct / 100.0
+    p = bs_price(req.spot, req.strike, T, req.risk_free_rate, iv, req.option_type)
+    g = bs_greeks(req.spot, req.strike, T, req.risk_free_rate, iv, req.option_type)
+    return {"price": p, "greeks": g.__dict__}
+
+
+@app.post("/iv")
+def iv(req: IVRequest):
+    T = req.days_to_expiry / 365.0
+    try:
+        sigma = solve_iv(req.observed_price, req.spot, req.strike, T, req.risk_free_rate, req.option_type)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"iv_pct": sigma * 100.0}
+
+
+@app.get("/replay/straddle")
 def replay_straddle():
-    """Returns the FR5 breakdown: per-interval theta/delta-gamma/vega/residual."""
-    return {"rows": run_replay()}
+    return run_replay()

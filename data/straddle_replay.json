@@ -1,0 +1,17 @@
+{
+  "_comment": "Synthetic (not real market) data for FR5's replay demo. A long ATM straddle bought 3 days before expiry, held to near-expiry, as spot drifts and IV crushes. Legs are units, not real NIFTY lot sizes (qty=40 per leg is chosen only so the total bleed lands near the ₹6,000 example in the requirements doc).",
+  "underlying": "NIFTY",
+  "strategy_type": "long_straddle",
+  "risk_free_rate": 0.06,
+  "legs": [
+    { "option_type": "call", "strike": 22000, "qty": 40 },
+    { "option_type": "put", "strike": 22000, "qty": 40 }
+  ],
+  "snapshots": [
+    { "timestamp": "2026-08-26T09:15:00", "spot": 22000, "iv_pct": 15.0, "days_to_expiry": 3.0 },
+    { "timestamp": "2026-08-26T15:30:00", "spot": 22040, "iv_pct": 14.6, "days_to_expiry": 2.75 },
+    { "timestamp": "2026-08-27T15:30:00", "spot": 22010, "iv_pct": 13.8, "days_to_expiry": 1.75 },
+    { "timestamp": "2026-08-28T15:30:00", "spot": 21990, "iv_pct": 12.9, "days_to_expiry": 0.75 },
+    { "timestamp": "2026-08-29T09:15:00", "spot": 21985, "iv_pct": 12.5, "days_to_expiry": 0.5 }
+  ]
+}
