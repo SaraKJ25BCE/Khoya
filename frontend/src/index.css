@@ -1,0 +1,19 @@
+body {
+  margin: 0;
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+table th,
+table td {
+  border-bottom: 1px solid #e5e5e5;
+  text-align: right;
+  padding: 6px 10px;
+}
+
+table th:first-child,
+table td:first-child,
+table th:nth-child(2),
+table td:nth-child(2) {
+  text-align: left;
+}
