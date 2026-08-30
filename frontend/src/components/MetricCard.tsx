@@ -1,7 +1,8 @@
 import React from 'react';
 
 export interface MetricCardProps {
-  label: string;
+  label: React.ReactNode;
+  sign?: string;
   value: string | number;
   subtext?: string;
   variant?: 'red' | 'green' | 'cyan' | 'neutral';
@@ -10,6 +11,7 @@ export interface MetricCardProps {
 
 export const MetricCard: React.FC<MetricCardProps> = ({
   label,
+  sign,
   value,
   subtext,
   variant = 'neutral',
@@ -20,8 +22,11 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       <div className="metric-label">
         <span>{label}</span>
       </div>
-      <div className={`metric-value ${variant}`}>
-        {value}
+      <div className="metric-value-container">
+        {sign && <div className={`metric-sign ${variant}`}>{sign}</div>}
+        <div className={`metric-value ${variant}`}>
+          {value}
+        </div>
       </div>
       {subtext && <div className="metric-sub">{subtext}</div>}
     </div>

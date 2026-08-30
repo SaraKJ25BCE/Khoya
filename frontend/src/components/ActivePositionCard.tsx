@@ -20,7 +20,7 @@ export const ActivePositionCard: React.FC<ActivePositionCardProps> = ({ position
         alignItems: 'center',
         justifyContent: 'space-between',
         cursor: 'pointer',
-        borderRadius: '20px',
+        borderRadius: '16px',
         marginBottom: '12px'
       }}
     >
@@ -34,7 +34,7 @@ export const ActivePositionCard: React.FC<ActivePositionCardProps> = ({ position
               letterSpacing: '0.08em',
               textTransform: 'uppercase',
               color: 'var(--text-muted)',
-              background: 'rgba(255, 255, 255, 0.05)',
+              background: '#111a2a',
               padding: '2px 8px',
               borderRadius: '4px',
               border: '1px solid var(--border-glass)'
@@ -59,8 +59,11 @@ export const ActivePositionCard: React.FC<ActivePositionCardProps> = ({ position
         </div>
 
         {/* Title */}
-        <h4 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.4rem', color: 'var(--text-main)', letterSpacing: '0.04em', marginBottom: '6px' }}>
-          {position.title} <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.82rem', color: 'var(--text-muted)' }}>&bull; {position.dte}</span>
+        <h4 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.45rem', color: 'var(--text-main)', letterSpacing: '0.04em', marginBottom: '6px', textTransform: 'uppercase' }}>
+          {position.title}{' '}
+          <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.82rem', color: 'var(--text-muted)', textTransform: 'none', fontWeight: 400 }}>
+            &bull; {position.dte}
+          </span>
         </h4>
 
         {/* Driver Tag */}
@@ -71,10 +74,11 @@ export const ActivePositionCard: React.FC<ActivePositionCardProps> = ({ position
               fontSize: '0.72rem',
               letterSpacing: '0.06em',
               color: '#60a5fa',
-              background: 'rgba(59, 130, 246, 0.12)',
-              padding: '2px 8px',
+              background: '#132238',
+              padding: '2px 10px',
               borderRadius: '4px',
-              border: '1px solid rgba(59, 130, 246, 0.25)'
+              border: '1px solid rgba(59, 130, 246, 0.25)',
+              display: 'inline-block'
             }}
           >
             {position.driver_tag}
@@ -91,16 +95,15 @@ export const ActivePositionCard: React.FC<ActivePositionCardProps> = ({ position
           <div
             style={{
               fontFamily: 'var(--font-numbers)',
-              fontSize: '1.8rem',
+              fontSize: '1.85rem',
               lineHeight: 1,
               marginTop: '2px',
               color: isProfit ? 'var(--color-green)' : 'var(--color-red)'
             }}
           >
-            {isProfit ? '+' : ''}₹{position.pnl.toLocaleString()}
+            {isProfit ? `+₹${position.pnl.toLocaleString()}` : `₹-${Math.abs(position.pnl).toLocaleString()}`}
           </div>
         </div>
-
         <ChevronRight size={18} color="var(--text-muted)" />
       </div>
     </div>

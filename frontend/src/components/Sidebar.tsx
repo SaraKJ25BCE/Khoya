@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Layers, History, Dna, ShieldCheck, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Layers, History, Dna, Sun, Moon } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -19,19 +19,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside className="app-sidebar">
       <div>
-        {/* Brand Header (No purple box background) */}
+        {/* Brand Header */}
         <div style={{ marginBottom: '28px', paddingLeft: '4px' }}>
-          <div style={{ fontFamily: 'var(--font-heading)', fontSize: '2.2rem', letterSpacing: '0.06em', lineHeight: 1, color: 'var(--text-main)' }}>
+          <div style={{ fontFamily: 'var(--font-heading)', fontSize: '2.4rem', letterSpacing: '0.04em', lineHeight: 1, color: 'var(--text-main)' }}>
             KHOYA
           </div>
-          <div style={{ fontFamily: 'var(--font-ui)', fontSize: '0.72rem', color: 'var(--text-muted)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: '3px' }}>
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: '0.74rem', color: 'var(--text-muted)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: '4px' }}>
             Options Intelligence
           </div>
         </div>
 
         {/* Section 1: LIVE */}
         <div style={{ marginBottom: '22px' }}>
-          <div style={{ fontFamily: 'var(--font-ui)', fontSize: '0.72rem', letterSpacing: '0.14em', color: 'var(--text-subtle)', textTransform: 'uppercase', marginBottom: '10px', paddingLeft: '8px' }}>
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: '0.72rem', letterSpacing: '0.12em', color: 'var(--text-subtle)', textTransform: 'uppercase', marginBottom: '10px', paddingLeft: '8px' }}>
             LIVE
           </div>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -39,7 +39,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               id="nav-btn-overview"
               className={`nav-pill ${activeTab === 'overview' ? 'active' : ''}`}
               onClick={() => setActiveTab('overview')}
-              style={{ justifyContent: 'flex-start', padding: '10px 18px' }}
             >
               <LayoutDashboard size={16} />
               <span>Overview</span>
@@ -49,7 +48,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               id="nav-btn-live-positions"
               className={`nav-pill ${activeTab === 'live-positions' ? 'active' : ''}`}
               onClick={() => setActiveTab('live-positions')}
-              style={{ justifyContent: 'flex-start', padding: '10px 18px' }}
             >
               <Layers size={16} />
               <span>Live Positions</span>
@@ -59,7 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Section 2: MEMORY */}
         <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontFamily: 'var(--font-ui)', fontSize: '0.72rem', letterSpacing: '0.14em', color: 'var(--text-subtle)', textTransform: 'uppercase', marginBottom: '10px', paddingLeft: '8px' }}>
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: '0.72rem', letterSpacing: '0.12em', color: 'var(--text-subtle)', textTransform: 'uppercase', marginBottom: '10px', paddingLeft: '8px' }}>
             MEMORY
           </div>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -67,7 +65,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               id="nav-btn-trade-history"
               className={`nav-pill ${activeTab === 'trade-history' ? 'active' : ''}`}
               onClick={() => setActiveTab('trade-history')}
-              style={{ justifyContent: 'flex-start', padding: '10px 18px' }}
             >
               <History size={16} />
               <span>Trade History</span>
@@ -77,7 +74,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               id="nav-btn-trader-dna"
               className={`nav-pill ${activeTab === 'trader-dna' ? 'active' : ''}`}
               onClick={() => setActiveTab('trader-dna')}
-              style={{ justifyContent: 'flex-start', padding: '10px 18px' }}
             >
               <Dna size={16} />
               <span>Trader DNA</span>
@@ -85,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </nav>
         </div>
 
-        {/* Light / Dark Mode Toggle Button */}
+        {/* Theme Toggle */}
         <div>
           <button
             id="theme-toggle-button"
@@ -94,36 +90,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {theme === 'dark' ? <Moon size={15} color="#38bdf8" /> : <Sun size={15} color="#d97706" />}
-              <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+              {theme === 'dark' ? <Moon size={14} color="#38bdf8" /> : <Sun size={14} color="#d97706" />}
+              <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.76rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 Appearance
               </span>
             </div>
             <div className="theme-switch-badge">
-              {theme === 'dark' ? 'Dark' : 'Light'}
+              {theme === 'dark' ? 'DARK' : 'LIGHT'}
             </div>
           </button>
         </div>
-      </div>
-
-      {/* Broker Notice at Bottom matching Image 2 */}
-      <div
-        className="glass-panel"
-        style={{
-          padding: '12px 14px',
-          borderRadius: '12px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '4px',
-          marginTop: '20px'
-        }}
-      >
-        <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.74rem', color: 'var(--text-muted)', lineHeight: 1.35 }}>
-          Broker-independent. Khoya never places or executes orders.
-        </span>
-        <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.7rem', color: 'var(--color-green)', fontWeight: 600 }}>
-          Connected to Python FastAPI engine
-        </span>
       </div>
     </aside>
   );

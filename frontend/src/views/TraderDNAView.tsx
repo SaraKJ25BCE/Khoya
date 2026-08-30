@@ -13,8 +13,8 @@ export const TraderDNAView: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ marginBottom: '22px' }}>
-        <h1 className="page-title" style={{ marginBottom: '4px' }}>Your Trading DNA</h1>
-        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '0.92rem', color: 'var(--text-muted)', letterSpacing: '0.04em', margin: 0 }}>
+        <h1 className="page-title">YOUR TRADING DNA</h1>
+        <p className="page-subtitle" style={{ margin: 0 }}>
           Patterns discovered across your trades.
         </p>
       </div>
@@ -31,7 +31,7 @@ export const TraderDNAView: React.FC = () => {
         </div>
         <div className="glass-panel metric-card">
           <div className="metric-label">TOTAL P&L</div>
-          <div className="metric-value green">&#8377;18,420</div>
+          <div className="metric-value green">₹18,420</div>
         </div>
       </div>
 
@@ -44,7 +44,7 @@ export const TraderDNAView: React.FC = () => {
               Most Profitable Strategy
             </span>
           </div>
-          <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.7rem', color: 'var(--text-main)', marginBottom: '4px' }}>
+          <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.7rem', color: 'var(--text-main)', marginBottom: '4px', textTransform: 'uppercase' }}>
             Iron Condor
           </div>
           <div style={{ fontFamily: 'var(--font-ui)', fontSize: '0.85rem', color: 'var(--text-muted)' }}>68% win rate</div>
@@ -57,7 +57,7 @@ export const TraderDNAView: React.FC = () => {
               Biggest Source of Losses
             </span>
           </div>
-          <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.7rem', color: 'var(--text-main)', marginBottom: '4px' }}>
+          <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.7rem', color: 'var(--text-main)', marginBottom: '4px', textTransform: 'uppercase' }}>
             IV Expansion
           </div>
           <div style={{ fontFamily: 'var(--font-ui)', fontSize: '0.85rem', color: 'var(--text-muted)' }}>63% of losing trades</div>
@@ -78,9 +78,9 @@ export const TraderDNAView: React.FC = () => {
                   fontFamily: 'var(--font-ui)',
                   fontSize: '0.8rem',
                   color: 'var(--text-main)',
-                  background: 'rgba(255, 255, 255, 0.06)',
+                  background: '#131d2e',
                   border: '1px solid var(--border-glass)',
-                  padding: '5px 14px',
+                  padding: '4px 12px',
                   borderRadius: '9999px'
                 }}
               >
@@ -100,9 +100,9 @@ export const TraderDNAView: React.FC = () => {
                 fontFamily: 'var(--font-ui)',
                 fontSize: '0.8rem',
                 color: 'var(--color-red)',
-                background: 'rgba(255, 59, 105, 0.1)',
-                border: '1px solid rgba(255, 59, 105, 0.3)',
-                padding: '5px 14px',
+                background: '#25162a',
+                border: '1px solid rgba(244, 63, 94, 0.3)',
+                padding: '4px 12px',
                 borderRadius: '9999px'
               }}
             >
@@ -113,8 +113,8 @@ export const TraderDNAView: React.FC = () => {
       </div>
 
       {/* Recurring Patterns */}
-      <div className="glass-panel glass-panel-lg" style={{ padding: '24px 26px' }}>
-        <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', color: 'var(--text-main)', letterSpacing: '0.04em', marginBottom: '16px' }}>
+      <div className="glass-panel" style={{ padding: '22px 26px' }}>
+        <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.45rem', color: 'var(--text-main)', letterSpacing: '0.04em', marginBottom: '16px', textTransform: 'uppercase' }}>
           Recurring patterns
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>
@@ -125,13 +125,13 @@ export const TraderDNAView: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '14px',
-                background: 'rgba(255, 255, 255, 0.03)',
+                background: '#101726',
                 border: '1px solid var(--border-glass)',
                 borderRadius: '10px',
-                padding: '14px 18px'
+                padding: '12px 18px'
               }}
             >
-              <span style={{ fontFamily: 'var(--font-numbers)', fontSize: '0.9rem', color: 'var(--text-subtle)' }}>
+              <span style={{ fontFamily: 'var(--font-numbers)', fontSize: '1rem', color: 'var(--text-subtle)' }}>
                 {i + 1}
               </span>
               <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.92rem', color: '#cbd5e1' }}>{pattern}</span>

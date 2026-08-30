@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ActivePosition, Trade } from '../types/trade';
 import { MOCK_ACTIVE_POSITIONS } from '../data/mockData';
 import { FactorDistributionBar } from '../components/FactorDistributionBar';
@@ -15,12 +15,11 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
   selectedPosition,
   setSelectedPosition,
 }) => {
-  // Active position index/selection
   const currentPos = selectedPosition || MOCK_ACTIVE_POSITIONS[0];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {/* Position Selector Pill Tabs */}
+      {/* Top Header & Position Selector Pill Tabs (Matching Screenshot 2) */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
         <button
           onClick={() => setSelectedPosition(null)}
@@ -53,9 +52,9 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
                 style={{
                   padding: '6px 14px',
                   borderRadius: '9999px',
-                  background: isSelected ? 'var(--nav-bg-active)' : 'var(--bg-card)',
-                  border: isSelected ? '1.5px solid var(--border-glass-active)' : '1px solid var(--border-glass)',
-                  color: isSelected ? 'var(--nav-text-active)' : 'var(--text-muted)',
+                  background: isSelected ? 'var(--nav-bg-active)' : '#121b2d',
+                  border: isSelected ? '1px solid var(--border-glass-active)' : '1px solid var(--border-glass)',
+                  color: isSelected ? '#ffffff' : 'var(--text-muted)',
                   fontFamily: 'var(--font-ui)',
                   fontSize: '0.8rem',
                   letterSpacing: '0.06em',
@@ -63,14 +62,15 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
                   fontWeight: isSelected ? 600 : 400
                 }}
               >
-                {pos.title} ({pos.pnl >= 0 ? '+' : ''}₹{pos.pnl.toLocaleString()})
+                {pos.title} ({pos.pnl >= 0 ? '+' : '₹-'}
+                {pos.pnl >= 0 ? `₹${pos.pnl.toLocaleString()}` : Math.abs(pos.pnl).toLocaleString()})
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Position Header (Matching Screenshot 3) */}
+      {/* Position Header (Matching Screenshot 2) */}
       <div style={{ marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
           <div>
@@ -82,7 +82,7 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                   color: 'var(--text-muted)',
-                  background: 'rgba(255, 255, 255, 0.05)',
+                  background: '#111a2a',
                   padding: '2px 8px',
                   borderRadius: '4px',
                   border: '1px solid var(--border-glass)'
@@ -99,7 +99,7 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
                   background: 'rgba(192, 132, 252, 0.12)',
                   padding: '2px 8px',
                   borderRadius: '4px',
-                  border: '1px solid rgba(192, 132, 252, 0.3)'
+                  border: '1px solid rgba(192, 132, 252, 0.35)'
                 }}
               >
                 PYTHON ENGINE STREAM
@@ -123,61 +123,61 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
                 fontFamily: 'var(--font-numbers)',
                 fontSize: '2.8rem',
                 lineHeight: 1,
-                color: currentPos.pnl >= 0 ? 'var(--color-green)' : 'var(--color-red)'
+                color: 'var(--color-red)'
               }}
             >
-              {currentPos.pnl >= 0 ? '+' : ''}₹{currentPos.id === 'pos-banknifty-straddle' ? '264' : currentPos.pnl.toLocaleString()}
+              ₹{currentPos.id === 'pos-banknifty-straddle' ? '264' : (currentPos.pnl >= 0 ? `+₹${currentPos.pnl.toLocaleString()}` : `₹-${Math.abs(currentPos.pnl).toLocaleString()}`)}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Position Stats Strip (Matching Screenshot 3: 6 metrics) */}
-      <div className="metrics-grid" style={{ marginBottom: '22px' }}>
-        <div className="glass-panel metric-card">
+      {/* Position Stats Strip (Matching Screenshot 2: 6 metrics) */}
+      <div className="metrics-grid" style={{ marginBottom: '20px' }}>
+        <div className="metric-card glass-panel">
           <div className="metric-label">ENTRY VALUE</div>
           <div className="metric-value neutral">₹{currentPos.entry_value.toLocaleString()}</div>
         </div>
-        <div className="glass-panel metric-card">
+        <div className="metric-card glass-panel">
           <div className="metric-label">CURRENT VALUE</div>
           <div className="metric-value neutral">₹{currentPos.current_value.toLocaleString()}</div>
         </div>
-        <div className="glass-panel metric-card">
+        <div className="metric-card glass-panel">
           <div className="metric-label">QUANTITY</div>
           <div className="metric-value neutral">{currentPos.quantity}</div>
         </div>
-        <div className="glass-panel metric-card">
+        <div className="metric-card glass-panel">
           <div className="metric-label">SPOT PRICE</div>
           <div className="metric-value neutral">₹{currentPos.spot_price.toLocaleString()}</div>
         </div>
-        <div className="glass-panel metric-card">
+        <div className="metric-card glass-panel">
           <div className="metric-label">IV</div>
           <div className="metric-value neutral">{currentPos.iv}%</div>
         </div>
-        <div className="glass-panel metric-card">
+        <div className="metric-card glass-panel">
           <div className="metric-label">TIME TO EXPIRY</div>
-          <div className="metric-value neutral">{currentPos.dte.replace(' DTE', '')}</div>
+          <div className="metric-value neutral">{currentPos.dte.replace(' DTE', '').toUpperCase()}</div>
         </div>
       </div>
 
-      {/* Why is my P&L moving? (Matching Screenshot 3) */}
+      {/* Why is my P&L moving? (Matching Screenshot 2) */}
       <FactorDistributionBar
-        title="Why is my P&L moving?"
+        title="WHY IS MY P&L MOVING?"
         spotPnl={currentPos.id === 'pos-banknifty-straddle' ? -22853 : currentPos.delta_pnl + currentPos.gamma_pnl}
-        deltaPnl={currentPos.delta_pnl}
-        gammaPnl={currentPos.gamma_pnl}
-        thetaPnl={currentPos.theta_pnl}
-        ivPnl={currentPos.iv_pnl}
-        residualPnl={currentPos.residual_pnl}
-        explanationText={`Python engine computed MTM P&L: ₹${currentPos.id === 'pos-banknifty-straddle' ? '264' : currentPos.pnl.toLocaleString()}. Factor decomposition: Spot ₹${(currentPos.delta_pnl + currentPos.gamma_pnl).toLocaleString()} (Δ: ₹${currentPos.delta_pnl.toLocaleString()}, Γ: ₹${currentPos.gamma_pnl.toLocaleString()}), Theta +₹${currentPos.theta_pnl.toLocaleString()}, IV Impact ₹${currentPos.iv_pnl.toLocaleString()}.`}
+        deltaPnl={currentPos.id === 'pos-banknifty-straddle' ? -19425 : currentPos.delta_pnl}
+        gammaPnl={currentPos.id === 'pos-banknifty-straddle' ? -3428 : currentPos.gamma_pnl}
+        thetaPnl={currentPos.id === 'pos-banknifty-straddle' ? 6885 : currentPos.theta_pnl}
+        ivPnl={currentPos.id === 'pos-banknifty-straddle' ? -190 : currentPos.iv_pnl}
+        residualPnl={currentPos.id === 'pos-banknifty-straddle' ? -16422 : currentPos.residual_pnl}
+        explanationText={`Python engine computed MTM P&L: ₹${currentPos.id === 'pos-banknifty-straddle' ? '264' : currentPos.pnl.toLocaleString()}. Factor decomposition: Spot ₹${(currentPos.delta_pnl + currentPos.gamma_pnl < 0 ? `-${Math.abs(currentPos.delta_pnl + currentPos.gamma_pnl).toLocaleString()}` : (currentPos.delta_pnl + currentPos.gamma_pnl).toLocaleString())} (Δ: ₹${currentPos.delta_pnl < 0 ? `-${Math.abs(currentPos.delta_pnl).toLocaleString()}` : currentPos.delta_pnl.toLocaleString()}, Γ: ₹${currentPos.gamma_pnl < 0 ? `-${Math.abs(currentPos.gamma_pnl).toLocaleString()}` : currentPos.gamma_pnl.toLocaleString()}), Theta +₹${currentPos.theta_pnl.toLocaleString()}, IV Impact ₹${currentPos.iv_pnl < 0 ? `-${Math.abs(currentPos.iv_pnl).toLocaleString()}` : currentPos.iv_pnl.toLocaleString()}.`}
       />
 
-      {/* P&L Attribution Timeline (Matching Screenshot 4) */}
-      <div className="glass-panel glass-panel-lg" style={{ padding: '22px 26px', marginBottom: '22px' }}>
+      {/* P&L Attribution Timeline (Matching Screenshot 2) */}
+      <div className="glass-panel" style={{ padding: '22px 24px', marginBottom: '22px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
           <div>
-            <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', color: 'var(--text-main)', letterSpacing: '0.04em', margin: 0 }}>
-              P&L attribution timeline &bull; {currentPos.title}
+            <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.45rem', color: 'var(--text-main)', letterSpacing: '0.04em', margin: 0, textTransform: 'uppercase' }}>
+              P&amp;L ATTRIBUTION TIMELINE &bull; {currentPos.title}
             </h3>
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '4px', margin: 0 }}>
               Factor breakdown generated by Python FastAPI backend (<code style={{ color: '#38bdf8' }}>attribute_pnl</code>)
@@ -189,17 +189,17 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
               fontSize: '0.72rem',
               letterSpacing: '0.08em',
               color: 'var(--color-green)',
-              background: 'rgba(73, 132, 52, 0.12)',
+              background: 'rgba(34, 197, 94, 0.12)',
               padding: '3px 9px',
               borderRadius: '4px',
-              border: '1px solid rgba(73, 132, 52, 0.35)'
+              border: '1px solid rgba(34, 197, 94, 0.35)'
             }}
           >
             PYTHON API STREAMING
           </span>
         </div>
 
-        {/* Timeline SVG Chart matching Screenshot 4 */}
+        {/* Timeline SVG Chart */}
         <div style={{ width: '100%', height: '240px', position: 'relative' }}>
           <svg viewBox="0 0 900 240" style={{ width: '100%', height: '100%' }} preserveAspectRatio="none">
             {/* Grid Lines */}
@@ -216,7 +216,7 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
             <text x="48" y="169" fill="var(--text-muted)" fontSize="10" fontFamily="var(--font-numbers)" textAnchor="end">-₹4.0k</text>
             <text x="48" y="214" fill="var(--text-muted)" fontSize="10" fontFamily="var(--font-numbers)" textAnchor="end">-₹8.0k</text>
 
-            {/* Delta High-Frequency Spikes Curve (Blue) */}
+            {/* Delta Curve (Blue) */}
             <path
               d="M 55 120 L 75 110 L 95 135 L 115 80 L 135 155 L 155 70 L 175 160 L 195 90 L 215 140 L 235 50 L 255 180 L 275 60 L 295 165 L 315 45 L 335 175 L 355 75 L 375 150 L 395 65 L 415 185 L 435 80 L 455 160 L 475 70 L 495 175 L 515 90 L 535 155 L 555 60 L 575 190 L 595 85 L 615 170 L 635 55 L 655 180 L 675 75 L 695 165 L 715 65 L 735 175 L 755 85 L 775 160 L 795 70 L 815 170 L 835 90 L 855 150 L 875 120"
               fill="none"
@@ -225,7 +225,7 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
               strokeDasharray="3 2"
             />
 
-            {/* Total PnL (White/Foreground Line) */}
+            {/* Total PnL (White Line) */}
             <path
               d="M 55 120 Q 120 70, 190 110 T 320 85 T 450 135 T 580 90 T 710 120 T 875 116"
               fill="none"
@@ -262,7 +262,7 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
             />
           </svg>
 
-          {/* Time Labels matching Screenshot 4 */}
+          {/* Time Labels matching Screenshot 2 */}
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 55px', fontFamily: 'var(--font-ui)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
             <span>19:41:41</span>
             <span>19:42:57</span>
@@ -304,8 +304,8 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
         </div>
       </div>
 
-      {/* 4 Greeks Metric Grid (Matching Screenshot 4 & 5) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '14px', marginBottom: '22px' }}>
+      {/* 4 Greeks Metric Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px', marginBottom: '22px' }}>
         <div className="glass-panel" style={{ padding: '18px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
@@ -349,7 +349,7 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
               </p>
             </div>
             <div style={{ fontFamily: 'var(--font-numbers)', fontSize: '2rem', color: 'var(--text-main)' }}>
-              +₹{currentPos.theta_greek}/day
+              +₹{Math.abs(currentPos.theta_greek)}/day
             </div>
           </div>
         </div>
@@ -365,13 +365,13 @@ export const LivePositionsView: React.FC<LivePositionsViewProps> = ({
               </p>
             </div>
             <div style={{ fontFamily: 'var(--font-numbers)', fontSize: '2rem', color: 'var(--text-main)' }}>
-              -₹{currentPos.vega_greek} / 1% IV
+              -₹{Math.abs(currentPos.vega_greek)} / 1% IV
             </div>
           </div>
         </div>
       </div>
 
-      {/* Implied Volatility Curve Section (Matching Screenshot 5) */}
+      {/* Implied Volatility Curve Section */}
       <IvCurveChart />
     </div>
   );

@@ -13,12 +13,12 @@ interface HistoryTrade {
 }
 
 const MOCK_HISTORY_TRADES: HistoryTrade[] = [
-  { id: '1', strategy: 'SHORT STRADDLE', date: '28 Aug', name: 'BANKNIFTY Short Straddle', driverTag: 'IV Expansion', duration: '5h 42m', ivChange: '+3.2%', outcome: 'loss', amount: 4280 },
-  { id: '2', strategy: 'BULL CALL SPREAD', date: '25 Aug', name: 'BANKNIFTY Bull Call Spread', driverTag: 'Spot Movement', duration: '2d 4h', ivChange: '-0.6%', outcome: 'profit', amount: 2100 },
-  { id: '3', strategy: 'SHORT STRADDLE', date: '22 Aug', name: 'BANKNIFTY Short Straddle', driverTag: 'IV Expansion', duration: '4h 10m', ivChange: '+2.8%', outcome: 'loss', amount: 3100 },
-  { id: '4', strategy: 'IRON CONDOR', date: '19 Aug', name: 'NIFTY Iron Condor', driverTag: 'Theta', duration: '3d 1h', ivChange: '-1.1%', outcome: 'profit', amount: 5400 },
-  { id: '5', strategy: 'SHORT STRADDLE', date: '15 Aug', name: 'NIFTY Short Straddle', driverTag: 'IV Expansion', duration: '6h 55m', ivChange: '+4.0%', outcome: 'loss', amount: 2870 },
-  { id: '6', strategy: 'BULL CALL SPREAD', date: '12 Aug', name: 'NIFTY Bull Call Spread', driverTag: 'Spot Movement', duration: '1d 18h', ivChange: '+0.4%', outcome: 'profit', amount: 3650 },
+  { id: '1', strategy: 'SHORT STRADDLE', date: '28 Aug', name: 'BANKNIFTY SHORT STRADDLE', driverTag: 'IV Expansion', duration: '5h 42m', ivChange: '+3.2%', outcome: 'loss', amount: 4280 },
+  { id: '2', strategy: 'BULL CALL SPREAD', date: '25 Aug', name: 'BANKNIFTY BULL CALL SPREAD', driverTag: 'Spot Movement', duration: '2d 4h', ivChange: '-0.6%', outcome: 'profit', amount: 2100 },
+  { id: '3', strategy: 'SHORT STRADDLE', date: '22 Aug', name: 'BANKNIFTY SHORT STRADDLE', driverTag: 'IV Expansion', duration: '4h 10m', ivChange: '+2.8%', outcome: 'loss', amount: 3100 },
+  { id: '4', strategy: 'IRON CONDOR', date: '19 Aug', name: 'NIFTY IRON CONDOR', driverTag: 'Theta', duration: '3d 1h', ivChange: '-1.1%', outcome: 'profit', amount: 5400 },
+  { id: '5', strategy: 'SHORT STRADDLE', date: '15 Aug', name: 'NIFTY SHORT STRADDLE', driverTag: 'IV Expansion', duration: '6h 55m', ivChange: '+4.0%', outcome: 'loss', amount: 2870 },
+  { id: '6', strategy: 'BULL CALL SPREAD', date: '12 Aug', name: 'NIFTY BULL CALL SPREAD', driverTag: 'Spot Movement', duration: '1d 18h', ivChange: '+0.4%', outcome: 'profit', amount: 3650 },
 ];
 
 const outcomeFilters = ['All', 'Profit', 'Loss'];
@@ -44,43 +44,45 @@ export const TradeHistoryView: React.FC = () => {
   const pillStyle = (active: boolean): React.CSSProperties => ({
     fontFamily: 'var(--font-ui)',
     fontSize: '0.85rem',
-    padding: '8px 18px',
+    padding: '7px 18px',
     borderRadius: '9999px',
-    border: active ? '1.5px solid var(--border-glass-active)' : '1px solid var(--nav-border)',
-    background: active ? 'var(--nav-bg-active)' : 'var(--nav-bg)',
-    color: active ? 'var(--text-main)' : 'var(--text-muted)',
+    border: active ? '1.5px solid #38bdf8' : '1px solid var(--border-glass)',
+    background: active ? '#142033' : '#101726',
+    color: active ? '#ffffff' : 'var(--text-muted)',
     fontWeight: active ? 600 : 400,
     cursor: 'pointer',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    outline: 'none',
+    transition: 'all 0.18s ease'
   });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ marginBottom: '22px' }}>
-        <h1 className="page-title" style={{ marginBottom: '4px' }}>Trade History</h1>
-        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '0.92rem', color: 'var(--text-muted)', letterSpacing: '0.04em', margin: 0 }}>
+        <h1 className="page-title">TRADE HISTORY</h1>
+        <p className="page-subtitle" style={{ margin: 0 }}>
           Your persistent trading memory &mdash; {MOCK_HISTORY_TRADES.length} recorded trades.
         </p>
       </div>
 
-      {/* Filters */}
+      {/* Filters (3 rows matching Screenshots 3 & 4) */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '22px' }}>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {outcomeFilters.map((f) => (
             <button key={f} style={pillStyle(outcomeFilter === f)} onClick={() => setOutcomeFilter(f)}>
               {f}
             </button>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {strategyFilters.map((f) => (
             <button key={f} style={pillStyle(strategyFilter === f)} onClick={() => setStrategyFilter(f)}>
               {f}
             </button>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {driverFilters.map((f) => (
             <button key={f} style={pillStyle(driverFilter === f)} onClick={() => setDriverFilter(f)}>
               {f}
@@ -90,13 +92,13 @@ export const TradeHistoryView: React.FC = () => {
       </div>
 
       {/* Trade Cards */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {filtered.map((t) => (
           <div
             key={t.id}
             className="glass-panel"
             style={{
-              padding: '20px 24px',
+              padding: '18px 24px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -105,30 +107,30 @@ export const TradeHistoryView: React.FC = () => {
             }}
           >
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                 <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.72rem', letterSpacing: '0.08em', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
                   {t.strategy}
                 </span>
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.78rem', color: 'var(--text-subtle)' }}>{t.date}</span>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t.date}</span>
               </div>
-              <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', color: 'var(--text-main)', marginBottom: '8px' }}>
+              <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.45rem', color: 'var(--text-main)', letterSpacing: '0.04em', marginBottom: '8px', textTransform: 'uppercase' }}>
                 {t.name}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                 <span
                   style={{
                     fontFamily: 'var(--font-ui)',
-                    fontSize: '0.75rem',
-                    color: t.outcome === 'loss' ? 'var(--color-red)' : '#38bdf8',
-                    background: t.outcome === 'loss' ? 'rgba(255, 59, 105, 0.1)' : 'rgba(56, 189, 248, 0.1)',
-                    border: t.outcome === 'loss' ? '1px solid rgba(255, 59, 105, 0.3)' : '1px solid rgba(56, 189, 248, 0.3)',
-                    padding: '3px 10px',
-                    borderRadius: '9999px'
+                    fontSize: '0.72rem',
+                    color: t.outcome === 'loss' ? 'var(--color-red)' : (t.driverTag === 'Theta' ? 'var(--color-green)' : '#60a5fa'),
+                    background: t.outcome === 'loss' ? '#25162a' : (t.driverTag === 'Theta' ? 'rgba(34, 197, 94, 0.12)' : '#132238'),
+                    border: t.outcome === 'loss' ? '1px solid rgba(244, 63, 94, 0.3)' : (t.driverTag === 'Theta' ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)'),
+                    padding: '2px 8px',
+                    borderRadius: '4px'
                   }}
                 >
                   {t.driverTag}
                 </span>
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.78rem', color: 'var(--text-subtle)' }}>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                   {t.duration} &bull; IV {t.ivChange}
                 </span>
               </div>
@@ -138,22 +140,24 @@ export const TradeHistoryView: React.FC = () => {
               <div
                 style={{
                   fontFamily: 'var(--font-ui)',
-                  fontSize: '0.75rem',
+                  fontSize: '0.74rem',
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                   color: t.outcome === 'profit' ? 'var(--color-green)' : 'var(--color-red)'
                 }}
               >
-                {t.outcome === 'profit' ? 'Profit' : 'Loss'}
+                {t.outcome === 'profit' ? 'PROFIT' : 'LOSS'}
               </div>
               <div
                 style={{
                   fontFamily: 'var(--font-numbers)',
-                  fontSize: '1.6rem',
+                  fontSize: '1.85rem',
+                  lineHeight: 1,
+                  marginTop: '2px',
                   color: t.outcome === 'profit' ? 'var(--color-green)' : 'var(--color-red)'
                 }}
               >
-                {t.outcome === 'profit' ? '+' : '-'}&#8377;{t.amount.toLocaleString()}
+                {t.outcome === 'profit' ? `+₹${t.amount.toLocaleString()}` : `-₹${t.amount.toLocaleString()}`}
               </div>
             </div>
           </div>
