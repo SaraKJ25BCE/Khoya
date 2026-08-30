@@ -1,14 +1,23 @@
--- Example demo data: one short straddle trade with a few attribution
+-- Example demo data: demo user profile and one short straddle trade with attribution
 -- snapshots, useful for demoing the UI before you have real trade history.
 
-with new_trade as (
-    insert into trades (
-        broker_source, underlying, strategy, entry_time,
-        spot_at_entry, iv_at_entry, market_regime
+with demo_user as (
+    insert into users (
+        google_id, email, email_verified, name, given_name, family_name, picture
     ) values (
-        'replay', 'BANKNIFTY', 'short_straddle', now() - interval '2 hours',
-        48200, 18.5, 'high_iv'
+        '100000000000000000001', 'demo.trader@khoya.app', true, 'Demo Trader', 'Demo', 'Trader', 'https://lh3.googleusercontent.com/a/default-user'
     )
+    on conflict (google_id) do update set updated_at = now()
+    returning id
+),
+new_trade as (
+    insert into trades (
+        user_id, broker_source, underlying, strategy, entry_time,
+        spot_at_entry, iv_at_entry, market_regime
+    ) select
+        id, 'replay', 'BANKNIFTY', 'short_straddle', now() - interval '2 hours',
+        48200, 18.5, 'high_iv'
+    from demo_user
     returning id
 )
 insert into trade_legs (trade_id, option_type, strike_price, expiry, side, quantity, entry_price)

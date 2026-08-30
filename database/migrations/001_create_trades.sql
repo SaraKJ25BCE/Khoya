@@ -3,6 +3,7 @@
 
 create table if not exists trades (
     id                uuid primary key default gen_random_uuid(),
+    user_id           uuid references users(id) on delete cascade,
 
     -- broker-agnostic by design: which broker this trade actually came from
     broker_source     text not null check (broker_source in ('dhan', 'mofsl', 'kite', 'replay')),
@@ -26,6 +27,7 @@ create table if not exists trades (
     created_at        timestamptz not null default now()
 );
 
+create index if not exists idx_trades_user_id on trades (user_id);
 create index if not exists idx_trades_underlying on trades (underlying);
 create index if not exists idx_trades_strategy on trades (strategy);
 create index if not exists idx_trades_entry_time on trades (entry_time);

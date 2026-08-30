@@ -1,13 +1,16 @@
 """
-FR1 (Hour 0-1): FastAPI service scaffolding.
-Zerodha (Kite Connect) integration endpoints included for live broker ingestion.
+FastAPI service scaffolding for Khoya option pricing, attribution, and live simulation.
 
 Endpoints:
   GET  /health              - liveness check
   POST /price               - Black-Scholes price + Greeks for one option
   POST /iv                  - solve IV from an observed price
-  GET  /replay/straddle     - run the FR5 replay and return attribution breakdown
-  GET  /zerodha/status      - check Zerodha configuration status
+  GET  /replay/straddle     - run historical replay breakdown
+  GET  /sample-trades       - fetch list of sample open option trades
+  GET  /live/tick           - fetch / advance live simulation tick with attribution calculation
+  POST /live/reset          - reset live simulation for a sample trade
+  GET  /live/option-chain   - fetch live option chain snapshot (Zerodha / Simulation)
+  GET  /zerodha/status      - check Zerodha Kite Connect configuration status
   GET  /zerodha/login-url   - generate Zerodha OAuth login URL
   POST /zerodha/session     - exchange request_token for access_token
   GET  /zerodha/positions   - fetch live open positions from Zerodha
@@ -17,16 +20,18 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from .iv_solver import solve_iv
 from .pricing import bs_greeks, bs_price
 from .replay import run_replay
+from .sample_trades import list_sample_trades, get_sample_trade
+from .live_simulation import simulation_engine
 from .zerodha import ZerodhaClient
 
-app = FastAPI(title="Khoya", version="0.1.0-hour12")
+app = FastAPI(title="Khoya Live Options Engine", version="0.2.0")
 
 # Configure CORS origins from environment variable ALLOWED_ORIGINS (comma-separated), defaulting to '*'
 raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
@@ -66,6 +71,13 @@ class ZerodhaSessionRequest(BaseModel):
     request_token: str = Field(..., min_length=1)
 
 
+class TickRequest(BaseModel):
+    trade_id: str = "short_straddle"
+    spot_change_pct: Optional[float] = None
+    iv_change_pct: Optional[float] = None
+    elapsed_hours: float = 0.5
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -93,6 +105,48 @@ def iv(req: IVRequest):
 @app.get("/replay/straddle")
 def replay_straddle():
     return run_replay()
+
+
+# -----------------------------------------------------------------------------
+# Sample Trades & Live Simulation Endpoints
+# -----------------------------------------------------------------------------
+
+@app.get("/sample-trades")
+def get_sample_trades():
+    """List sample open trades available for live simulation."""
+    return list_sample_trades()
+
+
+@app.get("/live/tick")
+def get_live_tick(
+    trade_id: str = Query("short_straddle", description="Sample trade identifier"),
+    spot_change_pct: Optional[float] = Query(None, description="Optional manual spot price % change"),
+    iv_change_pct: Optional[float] = Query(None, description="Optional manual IV % change"),
+    elapsed_hours: float = Query(0.5, description="Time decay elapsed in hours"),
+):
+    """
+    Advance simulation ticker by one tick and return real-time mark-to-market P&L,
+    Greeks, and P&L attribution breakdown.
+    """
+    return simulation_engine.generate_live_tick(
+        trade_id=trade_id,
+        spot_change_pct=spot_change_pct,
+        iv_change_pct=iv_change_pct,
+        elapsed_hours=elapsed_hours,
+    )
+
+
+@app.post("/live/reset")
+def reset_live_simulation(trade_id: str = Query("short_straddle")):
+    """Reset live simulation history for a trade."""
+    simulation_engine.reset_trade(trade_id)
+    return {"status": "reset", "trade_id": trade_id}
+
+
+@app.get("/live/option-chain")
+def get_live_option_chain(underlying: str = Query("NIFTY")):
+    """Fetch option chain snapshot (via Zerodha Kite API or simulated stream)."""
+    return simulation_engine.fetch_live_option_chain(underlying=underlying)
 
 
 # -----------------------------------------------------------------------------
