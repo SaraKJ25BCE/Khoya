@@ -682,7 +682,6 @@ export default function App() {
                   <h3 className="driver-title" style={{ margin: 0 }}>P&amp;L attribution timeline — {currentPos.name}</h3>
                   <p className="page-sub" style={{ marginBottom: 16 }}>Live streaming factor breakdown including Delta and Gamma</p>
                 </div>
-                <span className="badge-confidence" style={{ background: "rgba(16,185,129,0.15)", color: "#10b981" }}>HIGH-FPS FEED ACTIVE</span>
               </div>
 
               <div style={{ width: "100%", height: 280 }}>
