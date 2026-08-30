@@ -503,7 +503,7 @@ export default function App() {
         {activeTab === "overview" && (
           <div>
             <div className="page-header">
-              <h1 className="page-title">Good morning.</h1>
+              <h1 className="page-title">Total P&L Analysis.</h1>
               <p className="page-sub">Here's what's happening across your positions.</p>
             </div>
 
