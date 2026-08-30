@@ -448,7 +448,7 @@ export default function App() {
               <div className="k-card">
                 <div className="k-card-label">GAMMA IMPACT (Γ)</div>
                 <div className="k-card-value positive">
-                  +₹{gammaTotal.toLocaleString()}
+                  ₹{gammaTotal.toLocaleString()}
                 </div>
               </div>
             </div>
