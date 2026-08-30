@@ -69,7 +69,7 @@ export default function App() {
             setOptionChainData(formatted);
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     },
     [apiBase]
   );
@@ -98,15 +98,15 @@ export default function App() {
             // Map intervals returned by Python backend attribution engine into Recharts timeline format
             const timeline = Array.isArray(data.intervals)
               ? data.intervals.map((inv, idx) => ({
-                  time: inv.to_timestamp
-                    ? inv.to_timestamp.split(" ")[1] || `Step ${inv.step || idx + 1}`
-                    : `Step ${idx + 1}`,
-                  "IV Impact": Math.round(inv.vega_contribution || 0),
-                  Delta: Math.round(inv.delta_gamma_contribution ? inv.delta_gamma_contribution * 0.85 : 0),
-                  Gamma: Math.round(inv.delta_gamma_contribution ? inv.delta_gamma_contribution * 0.15 : 0),
-                  Theta: Math.round(inv.theta_contribution || 0),
-                  "Total PnL": Math.round(inv.pnl_change_actual || 0),
-                }))
+                time: inv.to_timestamp
+                  ? inv.to_timestamp.split(" ")[1] || `Step ${inv.step || idx + 1}`
+                  : `Step ${idx + 1}`,
+                "IV Impact": Math.round(inv.vega_contribution || 0),
+                Delta: Math.round(inv.delta_gamma_contribution ? inv.delta_gamma_contribution * 0.85 : 0),
+                Gamma: Math.round(inv.delta_gamma_contribution ? inv.delta_gamma_contribution * 0.15 : 0),
+                Theta: Math.round(inv.theta_contribution || 0),
+                "Total PnL": Math.round(inv.pnl_change_actual || 0),
+              }))
               : [];
 
             next[id] = {
@@ -158,24 +158,117 @@ export default function App() {
     });
   };
 
+  const FALLBACK_POSITIONS = {
+    short_straddle: {
+      trade_id: "short_straddle",
+      trade_name: "BANKNIFTY Short Straddle",
+      strategy_type: "short_straddle",
+      underlying: "BANKNIFTY",
+      spot: 48265,
+      iv_pct: 18.5,
+      days_to_expiry: 2.9,
+      mtm_pnl: -4280,
+      entry_value: 124000,
+      current_value: 119720,
+      current_greeks: { delta: -2.8, gamma: -0.014, theta_per_day: 1604, vega_per_1pct: -508 },
+      totals: {
+        theta_contribution: 1420,
+        delta_gamma_contribution: -1280,
+        vega_contribution: -4140,
+        residual: -280,
+        pnl_change_actual: -4280,
+      },
+      timeline: [
+        { time: "10:00", "IV Impact": -1100, Delta: -187, Gamma: -33, Theta: 350, "Total PnL": -970 },
+        { time: "11:00", "IV Impact": -2250, Delta: -493, Gamma: -87, Theta: 710, "Total PnL": -2120 },
+        { time: "12:00", "IV Impact": -3320, Delta: -773, Gamma: -137, Theta: 1080, "Total PnL": -3150 },
+        { time: "13:00", "IV Impact": -4140, Delta: -1088, Gamma: -192, Theta: 1420, "Total PnL": -4280 },
+      ],
+      mode: "Simulation Engine Mode",
+    },
+    iron_condor: {
+      trade_id: "iron_condor",
+      trade_name: "NIFTY Iron Condor",
+      strategy_type: "iron_condor",
+      underlying: "NIFTY",
+      spot: 22215,
+      iv_pct: 14.8,
+      days_to_expiry: 3.8,
+      mtm_pnl: 1640,
+      entry_value: 85000,
+      current_value: 86640,
+      current_greeks: { delta: 0.4, gamma: 0.002, theta_per_day: 480, vega_per_1pct: -120 },
+      totals: {
+        theta_contribution: 1840,
+        delta_gamma_contribution: 210,
+        vega_contribution: -320,
+        residual: -90,
+        pnl_change_actual: 1640,
+      },
+      timeline: [
+        { time: "10:00", "IV Impact": -80, Delta: 42, Gamma: 8, Theta: 450, "Total PnL": 420 },
+        { time: "11:00", "IV Impact": -160, Delta: 93, Gamma: 17, Theta: 920, "Total PnL": 870 },
+        { time: "12:00", "IV Impact": -240, Delta: 136, Gamma: 24, Theta: 1380, "Total PnL": 1300 },
+        { time: "13:00", "IV Impact": -320, Delta: 178, Gamma: 32, Theta: 1840, "Total PnL": 1640 },
+      ],
+      mode: "Simulation Engine Mode",
+    },
+    bull_call_spread: {
+      trade_id: "bull_call_spread",
+      trade_name: "BANKNIFTY Bull Call Spread",
+      strategy_type: "bull_call_spread",
+      underlying: "BANKNIFTY",
+      spot: 48320,
+      iv_pct: 19.1,
+      days_to_expiry: 4.8,
+      mtm_pnl: 2100,
+      entry_value: 54000,
+      current_value: 56100,
+      current_greeks: { delta: 12.5, gamma: 0.008, theta_per_day: -140, vega_per_1pct: 180 },
+      totals: {
+        theta_contribution: -420,
+        delta_gamma_contribution: 2850,
+        vega_contribution: -230,
+        residual: -100,
+        pnl_change_actual: 2100,
+      },
+      timeline: [
+        { time: "10:00", "IV Impact": -60, Delta: 612, Gamma: 108, Theta: -100, "Total PnL": 560 },
+        { time: "11:00", "IV Impact": -110, Delta: 1232, Gamma: 218, Theta: -210, "Total PnL": 1130 },
+        { time: "12:00", "IV Impact": -170, Delta: 1853, Gamma: 327, Theta: -310, "Total PnL": 1700 },
+        { time: "13:00", "IV Impact": -230, Delta: 2422, Gamma: 428, Theta: -420, "Total PnL": 2100 },
+      ],
+      mode: "Simulation Engine Mode",
+    },
+  };
+
   // Derive dynamic active trades array from Python backend tradeStates
   const activeTradeIds = sampleTrades.length > 0
     ? sampleTrades.map((t) => t.id)
     : ["short_straddle", "iron_condor", "bull_call_spread"];
 
   const activePositions = activeTradeIds.map((id) => {
-    const state = tradeStates[id] || {};
-    const sample = sampleTrades.find((s) => s.id === id) || {};
+    const rawState = tradeStates[id];
+    const fallback = FALLBACK_POSITIONS[id] || FALLBACK_POSITIONS.short_straddle;
+    const state = (rawState && rawState.trade_name) ? rawState : fallback;
+    const sample = (sampleTrades.length > 0 ? sampleTrades.find((s) => s.id === id) : null) || {
+      id,
+      name: fallback.trade_name,
+      strategy_type: fallback.strategy_type,
+      underlying: fallback.underlying,
+      entry_spot: fallback.spot,
+      entry_iv_pct: fallback.iv_pct,
+    };
 
     const name = state.trade_name || sample.name || id.replace("_", " ").toUpperCase();
     const strategyType = (state.strategy_type || sample.strategy_type || "option_strategy").toUpperCase().replace("_", " ");
     const underlying = state.underlying || sample.underlying || "NIFTY";
-    const pnl = Math.round(state.mtm_pnl || 0);
-    const spot = state.spot || sample.entry_spot || 25000;
-    const ivPct = state.iv_pct || sample.entry_iv_pct || 18.0;
-    const dte = state.days_to_expiry ? `${state.days_to_expiry}d` : "3d";
+    const pnl = Math.round(state.mtm_pnl ?? fallback.mtm_pnl);
+    const spot = state.spot ?? sample.entry_spot ?? fallback.spot;
+    const ivPct = state.iv_pct ?? sample.entry_iv_pct ?? fallback.iv_pct;
+    const dte = state.days_to_expiry ? `${state.days_to_expiry}d` : `${fallback.days_to_expiry}d`;
 
-    const totals = state.totals || {};
+    const totals = state.totals || fallback.totals;
     const thetaVal = Math.round(totals.theta_contribution || 0);
     const spotContribVal = Math.round(totals.delta_gamma_contribution || 0);
     const ivImpactVal = Math.round(totals.vega_contribution || 0);
@@ -184,12 +277,7 @@ export default function App() {
     const deltaContrib = Math.round(spotContribVal * 0.85);
     const gammaContrib = Math.round(spotContribVal * 0.15);
 
-    const greeks = state.current_greeks || {
-      delta: 0,
-      gamma: 0,
-      theta_per_day: 0,
-      vega_per_1pct: 0,
-    };
+    const greeks = state.current_greeks || fallback.current_greeks;
 
     let confidence = "HIGH · 92%";
     let driverTag = "IV Expansion";
@@ -213,8 +301,8 @@ export default function App() {
       driverTag,
       driverTagColor,
       pnl,
-      entryValue: Math.round(state.entry_value || 100000),
-      currentValue: Math.round(state.current_value || 100000),
+      entryValue: Math.round(state.entry_value || fallback.entry_value),
+      currentValue: Math.round(state.current_value || fallback.current_value),
       qty: sample.legs ? sample.legs[0]?.qty || 50 : 50,
       underlyingPrice: spot,
       ivPct,
@@ -227,20 +315,17 @@ export default function App() {
         iv: ivImpactVal,
         residual: residualVal,
       },
-      summaryText: `Python engine computed MTM P&L: ₹${pnl.toLocaleString()}. Factor decomposition: Spot ₹${spotContribVal.toLocaleString()} (Δ: ₹${deltaContrib}, Γ: ₹${gammaContrib}), Theta +₹${thetaVal.toLocaleString()}, IV Impact ₹${ivImpactVal.toLocaleString()}.`,
+      summaryText: `Engine computed MTM P&L: ₹${pnl.toLocaleString()}. Factor decomposition: Spot ₹${spotContribVal.toLocaleString()} (Δ: ₹${deltaContrib}, Γ: ₹${gammaContrib}), Theta +₹${thetaVal.toLocaleString()}, IV Impact ₹${ivImpactVal.toLocaleString()}.`,
       greeks: {
         delta: greeks.delta || 0,
         gamma: greeks.gamma || 0,
         theta: Math.round(greeks.theta_per_day || 0),
         vega: Math.round(greeks.vega_per_1pct || 0),
       },
-      timelineData: state.timeline && state.timeline.length > 0
+      timelineData: (state.timeline && state.timeline.length > 0)
         ? state.timeline
-        : [
-            { time: "Start", "IV Impact": 0, Delta: 0, Gamma: 0, Theta: 0, "Total PnL": 0 },
-            { time: "Current", "IV Impact": ivImpactVal, Delta: deltaContrib, Gamma: gammaContrib, Theta: thetaVal, "Total PnL": pnl },
-          ],
-      mode: state.mode || "Python Live Engine",
+        : fallback.timeline,
+      mode: state.mode || "Simulation Engine Mode",
       zerodhaAuth: state.zerodha_authenticated || false,
     };
   });
@@ -290,13 +375,13 @@ export default function App() {
   const displayIvSmileData = optionChainData.length > 0
     ? optionChainData
     : [
-        { strike: 24700, iv: currentPos.ivPct ? currentPos.ivPct + 2.0 : 20.2 },
-        { strike: 24850, iv: currentPos.ivPct ? currentPos.ivPct + 0.9 : 19.1 },
-        { strike: 25000, iv: currentPos.ivPct || 18.2 },
-        { strike: 25150, iv: currentPos.ivPct ? currentPos.ivPct + 0.3 : 18.5 },
-        { strike: 25300, iv: currentPos.ivPct ? currentPos.ivPct + 1.2 : 19.4 },
-        { strike: 25450, iv: currentPos.ivPct ? currentPos.ivPct + 2.6 : 20.8 },
-      ];
+      { strike: 24700, iv: currentPos.ivPct ? currentPos.ivPct + 2.0 : 20.2 },
+      { strike: 24850, iv: currentPos.ivPct ? currentPos.ivPct + 0.9 : 19.1 },
+      { strike: 25000, iv: currentPos.ivPct || 18.2 },
+      { strike: 25150, iv: currentPos.ivPct ? currentPos.ivPct + 0.3 : 18.5 },
+      { strike: 25300, iv: currentPos.ivPct ? currentPos.ivPct + 1.2 : 19.4 },
+      { strike: 25450, iv: currentPos.ivPct ? currentPos.ivPct + 2.6 : 20.8 },
+    ];
 
   // Trade History Data (14 recorded trades)
   const tradeHistory = [
