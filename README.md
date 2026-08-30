@@ -17,7 +17,7 @@ explicitly called for (see "What's built vs. planned" below) but not wired up
 
 ```bash
 cd backend
-python3 -m venv venv && source venv/bin/activate   # optional but recommended
+python -m venv venv && .\venv\Scripts\Activate.ps1 
 pip install -r requirements.txt
 
 # Run the tests first — this is the artifact that matters most:

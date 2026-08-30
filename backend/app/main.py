@@ -20,10 +20,17 @@ import os
 from pathlib import Path
 from typing import Optional
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+# Load environment variables from backend/.env or root .env
+ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=ENV_PATH)
+load_dotenv()
+
+from .db import get_db_status
 from .iv_solver import solve_iv
 from .pricing import bs_greeks, bs_price
 from .replay import run_replay
@@ -81,6 +88,11 @@ class TickRequest(BaseModel):
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/db/status")
+def db_status():
+    return get_db_status()
 
 
 @app.post("/price")

@@ -37,9 +37,9 @@ class ZerodhaClient:
         api_secret: Optional[str] = None,
         access_token: Optional[str] = None,
     ):
-        self.api_key = api_key or os.getenv("KITE_API_KEY", "")
-        self.api_secret = api_secret or os.getenv("KITE_API_SECRET", "")
-        self.access_token = access_token or os.getenv("KITE_ACCESS_TOKEN", "")
+        self.api_key = api_key if api_key is not None else os.getenv("KITE_API_KEY", "")
+        self.api_secret = api_secret if api_secret is not None else os.getenv("KITE_API_SECRET", "")
+        self.access_token = access_token if access_token is not None else os.getenv("KITE_ACCESS_TOKEN", "")
 
         self._kite: Optional[KiteConnect] = None
 
