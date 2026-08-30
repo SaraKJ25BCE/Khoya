@@ -57,6 +57,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from app.mcp_server import mcp_asgi_app
+
+app.mount("/mcp-server", mcp_asgi_app)
 
 class PriceRequest(BaseModel):
     spot: float = Field(..., gt=0)
