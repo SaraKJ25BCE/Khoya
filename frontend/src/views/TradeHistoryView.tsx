@@ -1,0 +1,164 @@
+import React, { useState } from 'react';
+
+interface HistoryTrade {
+  id: string;
+  strategy: string;
+  date: string;
+  name: string;
+  driverTag: string;
+  duration: string;
+  ivChange: string;
+  outcome: 'profit' | 'loss';
+  amount: number;
+}
+
+const MOCK_HISTORY_TRADES: HistoryTrade[] = [
+  { id: '1', strategy: 'SHORT STRADDLE', date: '28 Aug', name: 'BANKNIFTY Short Straddle', driverTag: 'IV Expansion', duration: '5h 42m', ivChange: '+3.2%', outcome: 'loss', amount: 4280 },
+  { id: '2', strategy: 'BULL CALL SPREAD', date: '25 Aug', name: 'BANKNIFTY Bull Call Spread', driverTag: 'Spot Movement', duration: '2d 4h', ivChange: '-0.6%', outcome: 'profit', amount: 2100 },
+  { id: '3', strategy: 'SHORT STRADDLE', date: '22 Aug', name: 'BANKNIFTY Short Straddle', driverTag: 'IV Expansion', duration: '4h 10m', ivChange: '+2.8%', outcome: 'loss', amount: 3100 },
+  { id: '4', strategy: 'IRON CONDOR', date: '19 Aug', name: 'NIFTY Iron Condor', driverTag: 'Theta', duration: '3d 1h', ivChange: '-1.1%', outcome: 'profit', amount: 5400 },
+  { id: '5', strategy: 'SHORT STRADDLE', date: '15 Aug', name: 'NIFTY Short Straddle', driverTag: 'IV Expansion', duration: '6h 55m', ivChange: '+4.0%', outcome: 'loss', amount: 2870 },
+  { id: '6', strategy: 'BULL CALL SPREAD', date: '12 Aug', name: 'NIFTY Bull Call Spread', driverTag: 'Spot Movement', duration: '1d 18h', ivChange: '+0.4%', outcome: 'profit', amount: 3650 },
+];
+
+const outcomeFilters = ['All', 'Profit', 'Loss'];
+const strategyFilters = ['All strategies', 'Short Straddle', 'Bull Call Spread', 'Iron Condor'];
+const driverFilters = ['All drivers', 'IV conditions', 'Theta', 'Spot'];
+
+export const TradeHistoryView: React.FC = () => {
+  const [outcomeFilter, setOutcomeFilter] = useState('All');
+  const [strategyFilter, setStrategyFilter] = useState('All strategies');
+  const [driverFilter, setDriverFilter] = useState('All drivers');
+
+  const filtered = MOCK_HISTORY_TRADES.filter((t) => {
+    if (outcomeFilter === 'Profit' && t.outcome !== 'profit') return false;
+    if (outcomeFilter === 'Loss' && t.outcome !== 'loss') return false;
+    if (strategyFilter !== 'All strategies' && t.strategy.toLowerCase() !== strategyFilter.toLowerCase()) return false;
+    if (driverFilter !== 'All drivers') {
+      const driverMap: Record<string, string> = { 'IV conditions': 'IV Expansion', Theta: 'Theta', Spot: 'Spot Movement' };
+      if (t.driverTag !== driverMap[driverFilter]) return false;
+    }
+    return true;
+  });
+
+  const pillStyle = (active: boolean): React.CSSProperties => ({
+    fontFamily: 'var(--font-ui)',
+    fontSize: '0.85rem',
+    padding: '8px 18px',
+    borderRadius: '9999px',
+    border: active ? '1.5px solid var(--border-glass-active)' : '1px solid var(--nav-border)',
+    background: active ? 'var(--nav-bg-active)' : 'var(--nav-bg)',
+    color: active ? 'var(--text-main)' : 'var(--text-muted)',
+    fontWeight: active ? 600 : 400,
+    cursor: 'pointer',
+    whiteSpace: 'nowrap'
+  });
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <div style={{ marginBottom: '22px' }}>
+        <h1 className="page-title" style={{ marginBottom: '4px' }}>Trade History</h1>
+        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '0.92rem', color: 'var(--text-muted)', letterSpacing: '0.04em', margin: 0 }}>
+          Your persistent trading memory &mdash; {MOCK_HISTORY_TRADES.length} recorded trades.
+        </p>
+      </div>
+
+      {/* Filters */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '22px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {outcomeFilters.map((f) => (
+            <button key={f} style={pillStyle(outcomeFilter === f)} onClick={() => setOutcomeFilter(f)}>
+              {f}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {strategyFilters.map((f) => (
+            <button key={f} style={pillStyle(strategyFilter === f)} onClick={() => setStrategyFilter(f)}>
+              {f}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {driverFilters.map((f) => (
+            <button key={f} style={pillStyle(driverFilter === f)} onClick={() => setDriverFilter(f)}>
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Trade Cards */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {filtered.map((t) => (
+          <div
+            key={t.id}
+            className="glass-panel"
+            style={{
+              padding: '20px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px'
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.72rem', letterSpacing: '0.08em', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                  {t.strategy}
+                </span>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.78rem', color: 'var(--text-subtle)' }}>{t.date}</span>
+              </div>
+              <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', color: 'var(--text-main)', marginBottom: '8px' }}>
+                {t.name}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: '0.75rem',
+                    color: t.outcome === 'loss' ? 'var(--color-red)' : '#38bdf8',
+                    background: t.outcome === 'loss' ? 'rgba(255, 59, 105, 0.1)' : 'rgba(56, 189, 248, 0.1)',
+                    border: t.outcome === 'loss' ? '1px solid rgba(255, 59, 105, 0.3)' : '1px solid rgba(56, 189, 248, 0.3)',
+                    padding: '3px 10px',
+                    borderRadius: '9999px'
+                  }}
+                >
+                  {t.driverTag}
+                </span>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.78rem', color: 'var(--text-subtle)' }}>
+                  {t.duration} &bull; IV {t.ivChange}
+                </span>
+              </div>
+            </div>
+
+            <div style={{ textAlign: 'right' }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-ui)',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: t.outcome === 'profit' ? 'var(--color-green)' : 'var(--color-red)'
+                }}
+              >
+                {t.outcome === 'profit' ? 'Profit' : 'Loss'}
+              </div>
+              <div
+                style={{
+                  fontFamily: 'var(--font-numbers)',
+                  fontSize: '1.6rem',
+                  color: t.outcome === 'profit' ? 'var(--color-green)' : 'var(--color-red)'
+                }}
+              >
+                {t.outcome === 'profit' ? '+' : '-'}&#8377;{t.amount.toLocaleString()}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
