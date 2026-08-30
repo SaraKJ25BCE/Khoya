@@ -40,7 +40,19 @@ from .sample_trades import list_sample_trades, get_sample_trade
 from .live_simulation import simulation_engine
 from .zerodha import ZerodhaClient
 
-app = FastAPI(title="Khoya Live Options Engine", version="0.2.0")
+from contextlib import asynccontextmanager
+from app.mcp_server import mcp, mcp_asgi_app
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with mcp.session_manager.run():
+        yield
+
+app = FastAPI(title="Khoya Live Options Engine", version="0.2.0", lifespan=lifespan)
+
+# ... your existing CORS middleware block stays here ...
+
+app.mount("/mcp-server", mcp_asgi_app)
 
 # Configure CORS origins from environment variable ALLOWED_ORIGINS (comma-separated), defaulting to '*'
 raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
@@ -56,10 +68,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-from app.mcp_server import mcp_asgi_app
-
-app.mount("/mcp-server", mcp_asgi_app)
 
 class PriceRequest(BaseModel):
     spot: float = Field(..., gt=0)
