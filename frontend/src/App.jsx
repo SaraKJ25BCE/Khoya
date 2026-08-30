@@ -32,35 +32,59 @@ export default function App() {
     pnl1: -4280,
     theta1: 2420,
     ivImpact1: -5930,
+    deltaContrib1: -740,
+    gammaContrib1: 120,
     spotContrib1: -620,
     entryValue1: 186500,
     currentValue1: 182220,
     greeks1: { delta: -0.18, gamma: 0.0042, theta: 4920, vega: -1240 },
+
     // Position 2: Bull Call Spread
     pnl2: 2280,
-    theta2: 1250,
-    ivImpact2: -450,
-    spotContrib2: 1520,
+    theta2: -320,
+    ivImpact2: -150,
+    deltaContrib2: 2650,
+    gammaContrib2: 150,
+    spotContrib2: 2800,
     entryValue2: 45000,
     currentValue2: 47280,
     greeks2: { delta: 0.42, gamma: 0.0018, theta: -320, vega: 450 },
+
     // Position 3: Iron Condor
     pnl3: -970,
-    theta3: 1180,
-    ivImpact3: -2140,
+    theta3: 1150,
+    ivImpact3: -2100,
+    deltaContrib3: 80,
+    gammaContrib3: 40,
     spotContrib3: 120,
     entryValue3: 62000,
     currentValue3: 61030,
     greeks3: { delta: -0.05, gamma: 0.0008, theta: 1150, vega: -820 },
   });
 
-  // Dynamic Timeline Data per position
-  const [timelineData, setTimelineData] = useState([
-    { time: "9:20", "IV Impact": 0, Spot: 0, Theta: 0, "Total PnL": 0 },
-    { time: "10:30", "IV Impact": -1200, Spot: 400, Theta: 350, "Total PnL": -450 },
-    { time: "11:45", "IV Impact": -2800, Spot: 650, Theta: 850, "Total PnL": -1300 },
-    { time: "13:15", "IV Impact": -4500, Spot: -200, Theta: 1400, "Total PnL": -3300 },
-    { time: "15:30", "IV Impact": -5930, Spot: -620, Theta: 2420, "Total PnL": -4280 },
+  // Dedicated Dynamic Timeline Arrays for EACH position
+  const [timelineData1, setTimelineData1] = useState([
+    { time: "09:20", "IV Impact": 0, Delta: 0, Gamma: 0, Theta: 0, "Total PnL": 0 },
+    { time: "10:30", "IV Impact": -1200, Delta: 320, Gamma: 80, Theta: 350, "Total PnL": -450 },
+    { time: "11:45", "IV Impact": -2800, Delta: 540, Gamma: 110, Theta: 850, "Total PnL": -1300 },
+    { time: "13:15", "IV Impact": -4500, Delta: -280, Gamma: 80, Theta: 1400, "Total PnL": -3300 },
+    { time: "15:30", "IV Impact": -5930, Delta: -740, Gamma: 120, Theta: 2420, "Total PnL": -4280 },
+  ]);
+
+  const [timelineData2, setTimelineData2] = useState([
+    { time: "09:20", "IV Impact": 0, Delta: 0, Gamma: 0, Theta: 0, "Total PnL": 0 },
+    { time: "10:30", "IV Impact": -40, Delta: 850, Gamma: 50, Theta: -80, "Total PnL": 780 },
+    { time: "11:45", "IV Impact": -90, Delta: 1620, Gamma: 90, Theta: -180, "Total PnL": 1440 },
+    { time: "13:15", "IV Impact": -120, Delta: 2100, Gamma: 120, Theta: -250, "Total PnL": 1850 },
+    { time: "15:30", "IV Impact": -150, Delta: 2650, Gamma: 150, Theta: -320, "Total PnL": 2280 },
+  ]);
+
+  const [timelineData3, setTimelineData3] = useState([
+    { time: "09:20", "IV Impact": 0, Delta: 0, Gamma: 0, Theta: 0, "Total PnL": 0 },
+    { time: "10:30", "IV Impact": -520, Delta: 30, Gamma: 10, Theta: 280, "Total PnL": -200 },
+    { time: "11:45", "IV Impact": -1100, Delta: 50, Gamma: 20, Theta: 580, "Total PnL": -450 },
+    { time: "13:15", "IV Impact": -1650, Delta: 70, Gamma: 30, Theta: 870, "Total PnL": -680 },
+    { time: "15:30", "IV Impact": -2100, Delta: 80, Gamma: 40, Theta: 1150, "Total PnL": -970 },
   ]);
 
   // Dynamic IV Curve Data
@@ -75,7 +99,6 @@ export default function App() {
 
   // High-FPS Multi-Position Tick Advance
   const advanceTick = () => {
-    // Attempt backend tick
     const endpoint = apiBase
       ? `${apiBase}/live/tick?trade_id=${selectedPosId}`
       : `/api/live/tick?trade_id=${selectedPosId}`;
@@ -107,43 +130,107 @@ export default function App() {
       const newSpot = apiSpot ? apiSpot : Math.round((prev.spot + dSpot) * 10) / 10;
       const newIvPct = apiIv ? apiIv : Math.max(10.0, Math.round((prev.ivPct + dIv) * 100) / 100);
 
-      // Pos 1 movement
+      // Pos 1 movement (Short Straddle)
       const newPnl1 = apiPnl ? apiPnl : Math.round(prev.pnl1 + dSpot * 7.2 + dIv * -110);
-      const newSpotContrib1 = Math.round(prev.spotContrib1 + dSpot * 14);
+      const newDelta1 = Math.round(prev.deltaContrib1 + dSpot * 12);
+      const newGamma1 = Math.round(prev.gammaContrib1 + dSpot * dSpot * 0.2);
+      const newSpotContrib1 = newDelta1 + newGamma1;
       const newIvImpact1 = Math.round(prev.ivImpact1 + dIv * -240);
       const newTheta1 = prev.theta1 + 2;
 
-      // Pos 2 movement (Bull Call Spread benefits from spot up, hurt by spot down)
-      const newPnl2 = Math.round(prev.pnl2 + dSpot * 12.5 + dIv * 15);
-      const newSpotContrib2 = Math.round(prev.spotContrib2 + dSpot * 18);
-      const newIvImpact2 = Math.round(prev.ivImpact2 + dIv * 30);
-      const newTheta2 = prev.theta2 + 1;
+      // Pos 2 movement (Bull Call Spread - profits from spot up)
+      const newPnl2 = Math.round(prev.pnl2 + dSpot * 14.5 + dIv * 12);
+      const newDelta2 = Math.round(prev.deltaContrib2 + dSpot * 15);
+      const newGamma2 = Math.round(prev.gammaContrib2 + 2);
+      const newSpotContrib2 = newDelta2 + newGamma2;
+      const newIvImpact2 = Math.round(prev.ivImpact2 + dIv * 18);
+      const newTheta2 = prev.theta2 - 1;
 
-      // Pos 3 movement (Iron Condor)
-      const newPnl3 = Math.round(prev.pnl3 - Math.abs(dSpot) * 3.5 + dIv * -85);
-      const newSpotContrib3 = Math.round(prev.spotContrib3 + dSpot * 5);
-      const newIvImpact3 = Math.round(prev.ivImpact3 + dIv * -160);
+      // Pos 3 movement (Iron Condor - rangebound theta decay)
+      const newPnl3 = Math.round(prev.pnl3 - Math.abs(dSpot) * 3.2 + dIv * -75);
+      const newDelta3 = Math.round(prev.deltaContrib3 + dSpot * 3);
+      const newGamma3 = Math.round(prev.gammaContrib3 + 1);
+      const newSpotContrib3 = newDelta3 + newGamma3;
+      const newIvImpact3 = Math.round(prev.ivImpact3 + dIv * -150);
       const newTheta3 = prev.theta3 + 2;
+
+      const nowStr = new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+      // Update Position 1 Timeline
+      setTimelineData1((tPrev) => {
+        const last = tPrev[tPrev.length - 1] || { "IV Impact": -5930, Delta: -740, Gamma: 120, Theta: 2420, "Total PnL": -4280 };
+        const next = [
+          ...tPrev,
+          {
+            time: nowStr,
+            "IV Impact": newIvImpact1,
+            Delta: newDelta1,
+            Gamma: newGamma1,
+            Theta: newTheta1,
+            "Total PnL": newPnl1,
+          },
+        ];
+        return next.length > 20 ? next.slice(next.length - 20) : next;
+      });
+
+      // Update Position 2 Timeline
+      setTimelineData2((tPrev) => {
+        const next = [
+          ...tPrev,
+          {
+            time: nowStr,
+            "IV Impact": newIvImpact2,
+            Delta: newDelta2,
+            Gamma: newGamma2,
+            Theta: newTheta2,
+            "Total PnL": newPnl2,
+          },
+        ];
+        return next.length > 20 ? next.slice(next.length - 20) : next;
+      });
+
+      // Update Position 3 Timeline
+      setTimelineData3((tPrev) => {
+        const next = [
+          ...tPrev,
+          {
+            time: nowStr,
+            "IV Impact": newIvImpact3,
+            Delta: newDelta3,
+            Gamma: newGamma3,
+            Theta: newTheta3,
+            "Total PnL": newPnl3,
+          },
+        ];
+        return next.length > 20 ? next.slice(next.length - 20) : next;
+      });
 
       return {
         ...prev,
         spot: newSpot,
         ivPct: newIvPct,
+
         pnl1: newPnl1,
         theta1: newTheta1,
         ivImpact1: newIvImpact1,
+        deltaContrib1: newDelta1,
+        gammaContrib1: newGamma1,
         spotContrib1: newSpotContrib1,
         currentValue1: newSpot * 7.5 + (prev.entryValue1 - 5000),
 
         pnl2: newPnl2,
         theta2: newTheta2,
         ivImpact2: newIvImpact2,
+        deltaContrib2: newDelta2,
+        gammaContrib2: newGamma2,
         spotContrib2: newSpotContrib2,
         currentValue2: prev.entryValue2 + newPnl2,
 
         pnl3: newPnl3,
         theta3: newTheta3,
         ivImpact3: newIvImpact3,
+        deltaContrib3: newDelta3,
+        gammaContrib3: newGamma3,
         spotContrib3: newSpotContrib3,
         currentValue3: prev.entryValue3 + newPnl3,
 
@@ -152,22 +239,6 @@ export default function App() {
           delta: Math.round((prev.greeks1.delta + dSpot * 0.001) * 100) / 100,
         },
       };
-    });
-
-    const nowStr = new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
-    setTimelineData((prev) => {
-      const last = prev[prev.length - 1] || { "IV Impact": -5930, Spot: -620, Theta: 2420, "Total PnL": -4280 };
-      const next = [
-        ...prev,
-        {
-          time: nowStr,
-          "IV Impact": last["IV Impact"] + Math.round(dIv * -240),
-          Spot: last.Spot + Math.round(dSpot * 14),
-          Theta: last.Theta + 2,
-          "Total PnL": last["Total PnL"] + Math.round(dSpot * 7.2 + dIv * -110),
-        },
-      ];
-      return next.length > 20 ? next.slice(next.length - 20) : next;
     });
 
     // Smoothly flex IV curve points
@@ -202,13 +273,19 @@ export default function App() {
       pnl2: 2280,
       pnl3: -970,
       theta1: 2420,
-      theta2: 1250,
-      theta3: 1180,
+      theta2: -320,
+      theta3: 1150,
       ivImpact1: -5930,
-      ivImpact2: -450,
-      ivImpact3: -2140,
+      ivImpact2: -150,
+      ivImpact3: -2100,
+      deltaContrib1: -740,
+      deltaContrib2: 2650,
+      deltaContrib3: 80,
+      gammaContrib1: 120,
+      gammaContrib2: 150,
+      gammaContrib3: 40,
       spotContrib1: -620,
-      spotContrib2: 1520,
+      spotContrib2: 2800,
       spotContrib3: 120,
     }));
   };
@@ -217,10 +294,12 @@ export default function App() {
   const openPnlTotal = liveMetrics.pnl1 + liveMetrics.pnl2 + liveMetrics.pnl3;
   const thetaTotal = liveMetrics.theta1 + liveMetrics.theta2 + liveMetrics.theta3;
   const ivImpactTotal = liveMetrics.ivImpact1 + liveMetrics.ivImpact2 + liveMetrics.ivImpact3;
+  const deltaTotal = liveMetrics.deltaContrib1 + liveMetrics.deltaContrib2 + liveMetrics.deltaContrib3;
+  const gammaTotal = liveMetrics.gammaContrib1 + liveMetrics.gammaContrib2 + liveMetrics.gammaContrib3;
   const spotContribTotal = liveMetrics.spotContrib1 + liveMetrics.spotContrib2 + liveMetrics.spotContrib3;
   const residualTotal = -350;
 
-  // Active Positions List with Live Dynamic P&L & Breakdown
+  // Active Positions List
   const activePositions = [
     {
       id: "short_straddle",
@@ -238,9 +317,10 @@ export default function App() {
       underlyingPrice: liveMetrics.spot,
       ivPct: liveMetrics.ivPct,
       dte: "3d",
-      breakdown: { spot: liveMetrics.spotContrib1, theta: liveMetrics.theta1, iv: liveMetrics.ivImpact1, residual: -150 },
+      breakdown: { spot: liveMetrics.spotContrib1, delta: liveMetrics.deltaContrib1, gamma: liveMetrics.gammaContrib1, theta: liveMetrics.theta1, iv: liveMetrics.ivImpact1, residual: -150 },
       summaryText: `IV expansion is currently the dominant contributor to your loss. Theta (+₹${liveMetrics.theta1.toLocaleString()}) is partially offsetting the loss.`,
       greeks: liveMetrics.greeks1,
+      timelineData: timelineData1,
     },
     {
       id: "bull_call_spread",
@@ -258,9 +338,10 @@ export default function App() {
       underlyingPrice: liveMetrics.spot,
       ivPct: 17.5,
       dte: "3d",
-      breakdown: { spot: liveMetrics.spotContrib2, theta: liveMetrics.theta2, iv: liveMetrics.ivImpact2, residual: -50 },
+      breakdown: { spot: liveMetrics.spotContrib2, delta: liveMetrics.deltaContrib2, gamma: liveMetrics.gammaContrib2, theta: liveMetrics.theta2, iv: liveMetrics.ivImpact2, residual: -50 },
       summaryText: "Spot price movement is driving your profit as NIFTY advances toward your long call strike.",
       greeks: liveMetrics.greeks2,
+      timelineData: timelineData2,
     },
     {
       id: "iron_condor",
@@ -278,9 +359,10 @@ export default function App() {
       underlyingPrice: 51850,
       ivPct: 21.4,
       dte: "3d",
-      breakdown: { spot: liveMetrics.spotContrib3, theta: liveMetrics.theta3, iv: liveMetrics.ivImpact3, residual: -140 },
+      breakdown: { spot: liveMetrics.spotContrib3, delta: liveMetrics.deltaContrib3, gamma: liveMetrics.gammaContrib3, theta: liveMetrics.theta3, iv: liveMetrics.ivImpact3, residual: -140 },
       summaryText: "Volatility expansion across short wing strikes is creating a temporary mark-to-market loss.",
       greeks: liveMetrics.greeks3,
+      timelineData: timelineData3,
     },
   ];
 
@@ -397,6 +479,10 @@ export default function App() {
         {/* Top Live Ticker Control Header Bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid #1d2338" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span className="badge-confidence" style={{ background: isPlaying ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)", color: isPlaying ? "#10b981" : "#ef4444", border: "1px solid currentColor" }}>
+              <span className="dot-sm" style={{ background: "currentColor", display: "inline-block", marginRight: 6 }}></span>
+              {isPlaying ? "HIGH-FPS LIVE FEED ACTIVE (350ms)" : "STREAM PAUSED"}
+            </span>
             <span style={{ fontSize: 12, color: "#64748b" }}>Ticks: #{tickCount}</span>
           </div>
 
@@ -421,8 +507,8 @@ export default function App() {
               <p className="page-sub">Here's what's happening across your positions.</p>
             </div>
 
-            {/* Top 4 Metrics Cards (Moving Dynamically Across All Positions!) */}
-            <div className="overview-grid">
+            {/* Top 6 Metrics Cards Grid */}
+            <div className="overview-grid" style={{ gridTemplateColumns: "repeat(6, 1fr)" }}>
               <div className="k-card">
                 <div className="k-card-label">OPEN P&amp;L</div>
                 <div className={`k-card-value ${openPnlTotal >= 0 ? "positive" : "negative"}`}>
@@ -443,6 +529,18 @@ export default function App() {
                   {ivImpactTotal >= 0 ? `+₹${ivImpactTotal.toLocaleString()}` : `-₹${Math.abs(ivImpactTotal).toLocaleString()}`}
                 </div>
               </div>
+              <div className="k-card">
+                <div className="k-card-label">DELTA IMPACT (Δ)</div>
+                <div className={`k-card-value ${deltaTotal >= 0 ? "positive" : "negative"}`}>
+                  {deltaTotal >= 0 ? `+₹${deltaTotal.toLocaleString()}` : `-₹${Math.abs(deltaTotal).toLocaleString()}`}
+                </div>
+              </div>
+              <div className="k-card">
+                <div className="k-card-label">GAMMA IMPACT (Γ)</div>
+                <div className="k-card-value positive">
+                  +₹{gammaTotal.toLocaleString()}
+                </div>
+              </div>
             </div>
 
             {/* Dynamic Moving "What's driving your P&L?" Banner */}
@@ -455,17 +553,17 @@ export default function App() {
                 <div className="pnl-segment segment-residual" style={{ width: `${residWidth}%` }}></div>
               </div>
               <div className="driver-legend">
-                <div className="legend-item"><span className="dot-sm segment-spot"></span> Spot {spotContribTotal >= 0 ? `+₹${spotContribTotal.toLocaleString()}` : `-₹${Math.abs(spotContribTotal).toLocaleString()}`}</div>
+                <div className="legend-item"><span className="dot-sm segment-spot"></span> Spot {spotContribTotal >= 0 ? `+₹${spotContribTotal.toLocaleString()}` : `-₹${Math.abs(spotContribTotal).toLocaleString()}`} (Δ: ₹{deltaTotal}, Γ: ₹{gammaTotal})</div>
                 <div className="legend-item"><span className="dot-sm segment-theta"></span> Theta +₹{thetaTotal.toLocaleString()}</div>
                 <div className="legend-item"><span className="dot-sm segment-iv"></span> IV {ivImpactTotal >= 0 ? `+₹${ivImpactTotal.toLocaleString()}` : `-₹${Math.abs(ivImpactTotal).toLocaleString()}`}</div>
                 <div className="legend-item"><span className="dot-sm segment-residual"></span> Residual -₹350</div>
               </div>
               <div className="driver-summary-text">
-                Your current total P&amp;L is primarily being driven by <strong>{dominantDriver}</strong>. Spot is at <strong>₹{liveMetrics.spot.toLocaleString()}</strong> (IV: <strong>{liveMetrics.ivPct}%</strong>). This reflects observed real-time contributions across your 3 open positions.
+                Your current total P&amp;L is primarily being driven by <strong>{dominantDriver}</strong>. Spot is at <strong>₹{liveMetrics.spot.toLocaleString()}</strong> (IV: <strong>{liveMetrics.ivPct}%</strong>). Delta impact is ₹{deltaTotal} and Gamma acceleration is +₹{gammaTotal}.
               </div>
             </div>
 
-            {/* Active Positions List (All 3 Moving Dynamically!) */}
+            {/* Active Positions List */}
             <h2 className="section-heading">Active positions</h2>
             <div className="position-card-list">
               {activePositions.map((pos) => (
@@ -545,8 +643,8 @@ export default function App() {
                 <span className="stat-value">{currentPos.qty}</span>
               </div>
               <div className="stat-item">
-                <span className="stat-label">UNDERLYING</span>
-                <span className="stat-value">{currentPos.underlyingPrice.toLocaleString()}</span>
+                <span className="stat-label">SPOT PRICE</span>
+                <span className="stat-value">₹{currentPos.underlyingPrice.toLocaleString()}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-label">IV</span>
@@ -568,7 +666,8 @@ export default function App() {
                 <div className="pnl-segment segment-residual" style={{ width: `${residWidth}%` }}></div>
               </div>
               <div className="driver-legend">
-                <div className="legend-item"><span className="dot-sm segment-spot"></span> Spot {currentPos.breakdown.spot >= 0 ? `+₹${currentPos.breakdown.spot.toLocaleString()}` : `-₹${Math.abs(currentPos.breakdown.spot).toLocaleString()}`}</div>
+                <div className="legend-item"><span className="dot-sm segment-spot"></span> Delta (Δ) {currentPos.breakdown.delta >= 0 ? `+₹${currentPos.breakdown.delta.toLocaleString()}` : `-₹${Math.abs(currentPos.breakdown.delta).toLocaleString()}`}</div>
+                <div className="legend-item"><span className="dot-sm segment-spot" style={{ opacity: 0.6 }}></span> Gamma (Γ) +₹{currentPos.breakdown.gamma.toLocaleString()}</div>
                 <div className="legend-item"><span className="dot-sm segment-theta"></span> Theta +₹{currentPos.breakdown.theta.toLocaleString()}</div>
                 <div className="legend-item"><span className="dot-sm segment-iv"></span> IV {currentPos.breakdown.iv >= 0 ? `+₹${currentPos.breakdown.iv.toLocaleString()}` : `-₹${Math.abs(currentPos.breakdown.iv).toLocaleString()}`}</div>
                 <div className="legend-item"><span className="dot-sm segment-residual"></span> Residual -₹{Math.abs(currentPos.breakdown.residual)}</div>
@@ -576,26 +675,27 @@ export default function App() {
               <div className="driver-summary-text">{currentPos.summaryText}</div>
             </div>
 
-            {/* High-FPS Smooth P&L Attribution Timeline Chart */}
+            {/* High-FPS P&L Attribution Timeline Chart (FLUCTUATES DYNAMICALLY PER POSITION!) */}
             <div className="chart-card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <h3 className="driver-title" style={{ margin: 0 }}>P&amp;L attribution timeline</h3>
-                  <p className="page-sub" style={{ marginBottom: 16 }}>Smooth high-framerate streaming feed across session ticks</p>
+                  <h3 className="driver-title" style={{ margin: 0 }}>P&amp;L attribution timeline — {currentPos.name}</h3>
+                  <p className="page-sub" style={{ marginBottom: 16 }}>Live streaming factor breakdown including Delta and Gamma</p>
                 </div>
                 <span className="badge-confidence" style={{ background: "rgba(16,185,129,0.15)", color: "#10b981" }}>HIGH-FPS FEED ACTIVE</span>
               </div>
 
-              <div style={{ width: "100%", height: 260 }}>
+              <div style={{ width: "100%", height: 280 }}>
                 <ResponsiveContainer>
-                  <LineChart data={timelineData}>
+                  <LineChart data={currentPos.timelineData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#1f273d" />
                     <XAxis dataKey="time" stroke="#64748b" />
                     <YAxis stroke="#64748b" />
                     <Tooltip contentStyle={{ background: "#131726", borderColor: "#272f48" }} />
                     <Legend />
                     <Line type="monotone" dataKey="IV Impact" stroke="#ec4899" strokeWidth={2} dot={false} isAnimationActive={true} animationDuration={300} easing="ease-in-out" />
-                    <Line type="monotone" dataKey="Spot" stroke="#3b82f6" strokeWidth={2} dot={false} isAnimationActive={true} animationDuration={300} easing="ease-in-out" />
+                    <Line type="monotone" dataKey="Delta" stroke="#3b82f6" strokeWidth={2} dot={false} isAnimationActive={true} animationDuration={300} easing="ease-in-out" />
+                    <Line type="monotone" dataKey="Gamma" stroke="#f59e0b" strokeWidth={2} dot={false} isAnimationActive={true} animationDuration={300} easing="ease-in-out" />
                     <Line type="monotone" dataKey="Theta" stroke="#10b981" strokeWidth={2} dot={false} isAnimationActive={true} animationDuration={300} easing="ease-in-out" />
                     <Line type="monotone" dataKey="Total PnL" stroke="#ffffff" strokeDasharray="5 5" strokeWidth={1.5} dot={false} isAnimationActive={true} animationDuration={300} easing="ease-in-out" />
                   </LineChart>
@@ -607,23 +707,23 @@ export default function App() {
             <div className="greeks-grid">
               <div className="greek-card">
                 <div className="greek-header">
-                  <span className="greek-title">DELTA</span>
+                  <span className="greek-title">DELTA (Δ)</span>
                   <span className="greek-val">{currentPos.greeks.delta}</span>
                 </div>
-                <div className="greek-desc">A ₹1 move in underlying has an estimated delta-driven impact of -₹13.5 per point before gamma effects.</div>
+                <div className="greek-desc">A ₹1 move in underlying spot has an estimated delta-driven impact of -₹13.5 per point before gamma effects.</div>
               </div>
 
               <div className="greek-card">
                 <div className="greek-header">
-                  <span className="greek-title">GAMMA</span>
+                  <span className="greek-title">GAMMA (Γ)</span>
                   <span className="greek-val">+{currentPos.greeks.gamma}</span>
                 </div>
-                <div className="greek-desc">Measures how quickly Delta itself changes as the underlying moves.</div>
+                <div className="greek-desc">Measures how quickly Delta itself changes as the spot price moves.</div>
               </div>
 
               <div className="greek-card">
                 <div className="greek-header">
-                  <span className="greek-title">THETA</span>
+                  <span className="greek-title">THETA (Θ)</span>
                   <span className="greek-val">+₹{currentPos.greeks.theta}/day</span>
                 </div>
                 <div className="greek-desc">Time decay is currently contributing approximately ₹4,920 per day.</div>
@@ -631,7 +731,7 @@ export default function App() {
 
               <div className="greek-card">
                 <div className="greek-header">
-                  <span className="greek-title">VEGA</span>
+                  <span className="greek-title">VEGA (ν)</span>
                   <span className="greek-val">-₹{Math.abs(currentPos.greeks.vega)} / 1% IV</span>
                 </div>
                 <div className="greek-desc">A 1 percentage point increase in IV currently has an estimated -₹1,240 impact on the position.</div>
