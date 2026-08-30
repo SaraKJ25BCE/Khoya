@@ -479,10 +479,6 @@ export default function App() {
         {/* Top Live Ticker Control Header Bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid #1d2338" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span className="badge-confidence" style={{ background: isPlaying ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)", color: isPlaying ? "#10b981" : "#ef4444", border: "1px solid currentColor" }}>
-              <span className="dot-sm" style={{ background: "currentColor", display: "inline-block", marginRight: 6 }}></span>
-              {isPlaying ? "HIGH-FPS LIVE FEED ACTIVE (350ms)" : "STREAM PAUSED"}
-            </span>
             <span style={{ fontSize: 12, color: "#64748b" }}>Ticks: #{tickCount}</span>
           </div>
 
